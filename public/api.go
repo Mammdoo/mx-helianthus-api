@@ -11,11 +11,12 @@ package public
 import (
 	"net/http"
 	"encoding/json"
+	"helianthus/utils"
 )
 
 func GetCurrentVersion(rw http.ResponseWriter, req *http.Request) {
 	rsp, _ := json.Marshal(&reponsePublic{Code: 0, Data: "0.1.0"})
-	HttpResponse("json", rw, rsp)
+	utils.HttpResponse("json", rw, rsp)
 }
 
 func GetHealth(rw http.ResponseWriter, req *http.Request) {

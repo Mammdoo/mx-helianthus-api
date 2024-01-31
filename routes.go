@@ -22,21 +22,24 @@ func initRouteSub(r *mux.Router, path string) *mux.Router {
 }
 
 func routePublic(r *mux.Router) {
-	r.path("/").HandlerFunc(public.GetHealth).Methods("GET")
+	r.Path("/").HandlerFunc(public.GetHealth).Methods("GET")
 	r.Path("/version").HandlerFunc(public.GetCurrentVersion).Methods("GET")
 }
 
 func routeCMDB(r *mux.Router) {
-	r.Path("/application").HandlerFunc(cmdb.GetApplicationID).Methods("GET")
+	r.Path("/").HandlerFunc(public.GetHealth).Methods("GET")
+	r.Path("/application").HandlerFunc(cmdb.GetApplication).Methods("GET")
+	r.Path("/application").HandlerFunc(utils.AuthMiddlerware(cmdb.CreateApplication)).Methods("POST")
+	r.Path("/application/{AppID}").HandlerFunc(utils.AuthMiddlerware(cmdb.GetApplicationByAppID)).Methods("GET")
 }
 
 func init() {
 	httpHandler = mux.NewRouter()
 	httpHandler.StrictSlash(true)
-	routeRegisterMain := initRouteSub(httpHandler, "/api")
 
-	routeRegisterPublic := initRouteSub(routeRegisterMain, "/public")
-	routeRegisterCMDB := initRouteSub(routeRegisterMain, "/cmdb")
+	routeRegisterPublic := initRouteSub(httpHandler, "/api/public")
+	routeRegisterCMDB := initRouteSub(httpHandler, "/api/cmdb")
+
 	routePublic(routeRegisterPublic)
 	routeCMDB(routeRegisterCMDB)
 }

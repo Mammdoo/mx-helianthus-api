@@ -12,28 +12,48 @@ import (
 	"net/http"
 	"encoding/json"
 	"helianthus/utils"
+	"fmt"
 )
 
-func (this *application) GetApplicationID() string {
-	return this.Application
-}
-
-func (this *application) GetOwner() string {	
-	return this.Owner
-}
-
-func (this *application) GetMembers() string {
-	return this.Members
-}
-
-
-func GetApplicationID(rw http.ResponseWriter, req *http.Request) {
-	this := &application{
-		Application: "ufs-web",
-		Owner: "sine",
-		Members: "sine",
-	}
-
-	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: this.GetApplicationID()})
+func GetApplication(rw http.ResponseWriter, req *http.Request) {
+	rst := utils.DB.Find(&application{})
+	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: rst })
 	utils.HttpResponse("json", rw, rsp)
 }
+
+func GetApplicationByAppID(rw http.ResponseWriter, req *http.Request) {
+	rst := utils.DB.Find(&application{AppID: utils.GetRouteName(req, "AppID")})
+	fmt.Println(rst)
+	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: rst })
+	utils.HttpResponse("json", rw, rsp)
+}
+
+func CreateApplication(rw http.ResponseWriter, req *http.Request) {
+	rsp := utils.ValidatePostJSON(req)
+	if rsp != nil {
+		utils.HttpResponse("json", rw, rsp)
+		return
+	}
+
+	var request requestApplication
+
+	json.NewDecoder(req.Body).Decode(&request)
+	
+	if request.AppName == "" || request.AppID == "" || request.AppOwner == "" {
+		utils.ValidatorMissingRequest(rw)
+		return
+	}
+
+	dbObject := &application{
+		AppName: request.AppName,
+		AppID: request.AppID,
+		AppOwner: request.AppOwner,
+		Members: request.Members,
+	}
+
+	utils.DB.Create(dbObject)
+
+	rsp, _ = json.Marshal(&utils.ResponseJSON{Code: 0, Data: dbObject })
+	utils.HttpResponse("json", rw, rsp)
+}
+

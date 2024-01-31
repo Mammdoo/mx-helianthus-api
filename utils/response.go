@@ -22,6 +22,7 @@ type ResponseXML struct {
 	Data interface{} `xml:"data"`
 }
 
+
 func HttpResponse(contentType string, rw http.ResponseWriter, rsp []byte) {
 	switch contentType {
 	case "xml":
