@@ -12,19 +12,39 @@ import (
 	"net/http"
 	"encoding/json"
 	"helianthus/utils"
-	"fmt"
 )
 
 func GetApplication(rw http.ResponseWriter, req *http.Request) {
-	rst := utils.DB.Find(&application{})
-	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: rst })
+	var rst []modelApplication
+  var res []zApplicationBase
+	utils.DB.Find(&rst)
+	
+	for i := 0; i < len(rst); i++ {
+		res = append(res, zApplicationBase{
+			ApplicationName: rst[i].AppName,
+			ApplicationID: rst[i].AppID,
+			ApplicationOwner: rst[i].AppOwner,
+			ApplicationMembers: utils.StringToSlice(rst[i].AppMembers, ","),
+		})
+	}
+
+	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: res })
 	utils.HttpResponse("json", rw, rsp)
 }
 
 func GetApplicationByAppID(rw http.ResponseWriter, req *http.Request) {
-	rst := utils.DB.Find(&application{AppID: utils.GetRouteName(req, "AppID")})
-	fmt.Println(rst)
-	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: rst })
+	var rst modelApplication
+	var res []zApplicationBase
+	rst = modelApplication{AppID: utils.GetRouteName(req, "AppID")}
+	utils.DB.Limit(1).Find(&rst)
+
+	res = append(res, zApplicationBase{
+		ApplicationName: rst.AppName,
+		ApplicationID: rst.AppID,
+		ApplicationOwner: rst.AppOwner,
+		ApplicationMembers: utils.StringToSlice(rst.AppMembers, ","),
+	})
+	rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 0, Data: res})
 	utils.HttpResponse("json", rw, rsp)
 }
 
@@ -35,20 +55,20 @@ func CreateApplication(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var request requestApplication
+	var request zApplicationBase
 
 	json.NewDecoder(req.Body).Decode(&request)
 	
-	if request.AppName == "" || request.AppID == "" || request.AppOwner == "" {
+	if request.ApplicationID == "" || request.ApplicationName == "" || request.ApplicationOwner == "" {
 		utils.ValidatorMissingRequest(rw)
 		return
 	}
 
-	dbObject := &application{
-		AppName: request.AppName,
-		AppID: request.AppID,
-		AppOwner: request.AppOwner,
-		Members: request.Members,
+	dbObject := &modelApplication{
+		AppName: request.ApplicationName,
+		AppID: request.ApplicationID,
+		AppOwner: request.ApplicationOwner,
+		AppMembers: utils.SliceToString(request.ApplicationMembers, ","),
 	}
 
 	utils.DB.Create(dbObject)
