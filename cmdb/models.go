@@ -9,7 +9,7 @@ Email:    sinerwr@gmail.com
 package cmdb
 
 import (
-	"helianthus/utils"
+	"helianthus/database"
 )
 
 type modelApplication struct {
@@ -31,8 +31,8 @@ type modelUser struct {
 }
 
 func migration() {
-	utils.DB.AutoMigrate(&modelApplication{})
-	// utils.DB.AutoMigrate(&modelUser{})
+	database.Conn.AutoMigrate(&modelApplication{})
+	// database.Conn.AutoMigrate(&modelUser{})
 }
 
 func init() {

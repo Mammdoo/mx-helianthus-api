@@ -33,6 +33,7 @@ func routeCMDB(r *mux.Router) {
 	r.Path("/application").HandlerFunc(utils.AuthMiddlerware(cmdb.CreateApplication)).Methods("POST")
 
 	r.Path("/application/{AppID}").HandlerFunc(utils.AuthMiddlerware(cmdb.GetApplicationByAppID)).Methods("GET")
+	r.Path("/application/{AppID}").HandlerFunc(utils.AuthMiddlerware(cmdb.UpdateApplicationByAppID)).Methods("PUT")
 }
 
 func init() {
