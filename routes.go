@@ -28,8 +28,10 @@ func routePublic(r *mux.Router) {
 
 func routeCMDB(r *mux.Router) {
 	r.Path("/").HandlerFunc(public.GetHealth).Methods("GET")
-	r.Path("/application").HandlerFunc(cmdb.GetApplication).Methods("GET")
+
+	r.Path("/application").HandlerFunc(utils.AuthMiddlerware(cmdb.GetApplication)).Methods("GET")
 	r.Path("/application").HandlerFunc(utils.AuthMiddlerware(cmdb.CreateApplication)).Methods("POST")
+
 	r.Path("/application/{AppID}").HandlerFunc(utils.AuthMiddlerware(cmdb.GetApplicationByAppID)).Methods("GET")
 }
 

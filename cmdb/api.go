@@ -36,7 +36,13 @@ func GetApplicationByAppID(rw http.ResponseWriter, req *http.Request) {
 	var rst modelApplication
 	var res []zApplicationBase
 	rst = modelApplication{AppID: utils.GetRouteName(req, "AppID")}
-	utils.DB.Limit(1).Find(&rst)
+	utils.DB.Where(rst).Find(&rst)
+
+	if rst.AppOwner == "" {
+		rsp, _ := json.Marshal(&utils.ResponseJSON{Code: 1, Data : "No such application with AppID: " + rst.AppID})
+		utils.HttpResponse("json", rw, rsp)
+		return
+	}
 
 	res = append(res, zApplicationBase{
 		ApplicationName: rst.AppName,
