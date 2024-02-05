@@ -12,6 +12,8 @@ import (
 	"helianthus/database"
 )
 
+type modelAlerting struct {}
+
 type modelApplication struct {
 	ID 						uint  	`gorm:"primaryKey;autoIncrement"`
 	AppID 				string  `gorm:"column:short_name"`
@@ -33,8 +35,4 @@ type modelUser struct {
 func migration() {
 	database.Conn.AutoMigrate(&modelApplication{})
 	// database.Conn.AutoMigrate(&modelUser{})
-}
-
-func init() {
-	migration()
 }
