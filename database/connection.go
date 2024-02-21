@@ -26,10 +26,11 @@ type dbconfig struct {
 	Host     string
 	Port     string
 	Database string
+	TLS			 string
 }
 
 func (dsn *dbconfig) String() string {
-	return dsn.Username + ":" + dsn.Password + "@tcp(" + dsn.Host + ":" + dsn.Port + ")/" + dsn.Database
+	return dsn.Username + ":" + dsn.Password + "@tcp(" + dsn.Host + ":" + dsn.Port + ")/" + dsn.Database + "?tls=" + dsn.TLS
 }
 
 func generateDSN() string {
@@ -39,6 +40,7 @@ func generateDSN() string {
 		Host:     utils.GetEnvWithDefault("DB_HOST", "localhost"),
 		Port:     utils.GetEnvWithDefault("DB_PORT", "3306"),
 		Database: utils.GetEnvWithDefault("DB_DATABASE", "helianthus"),
+		TLS: 			utils.GetEnvWithDefault("DB_TLS_NAME", "skip-verify"),
 	}
 	return dsn.String()
 }

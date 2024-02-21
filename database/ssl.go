@@ -13,6 +13,7 @@ import (
 	"crypto/tls"
 	"io/ioutil"
 	"crypto/x509"
+	"log"
 
 	"helianthus/utils"
 )
@@ -21,7 +22,7 @@ import (
 
 func registryTLSConfig() {
 	// Register a custom TLS config
-	if utils.GetEnvWithDefault("MYSQL_TLS", "false") == "true" {		
+	if utils.GetEnvWithDefault("DB_TLS", "false") == "true" {		
 		rootCertPool := x509.NewCertPool()
 		// Load the CA certificate
 		ca, err := ioutil.ReadFile("/app/ssl/ca.pem")
@@ -29,12 +30,12 @@ func registryTLSConfig() {
 			panic(err)
 		}
 
-		if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
-			log.Fatal("Failed to append PEM.")
+		if ok := rootCertPool.AppendCertsFromPEM(ca); !ok {
+			log.Fatal("Failed to append CA pem.")
 		}
 		
 		mysql.RegisterTLSConfig("custom", &tls.Config{
-			RootCAs:      rootCertPool
+			RootCAs:      rootCertPool,
 		})
 		return
 	}
