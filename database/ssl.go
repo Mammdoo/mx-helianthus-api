@@ -22,7 +22,7 @@ import (
 
 func registryTLSConfig() {
 	// Register a custom TLS config
-	if utils.GetEnvWithDefault("DB_TLS", "false") == "true" {		
+	if utils.GetEnvWithDefault("DB_TLS", "false") != "false" {		
 		rootCertPool := x509.NewCertPool()
 		// Load the CA certificate
 		ca, err := ioutil.ReadFile("/app/ssl/ca.pem")
@@ -33,14 +33,10 @@ func registryTLSConfig() {
 		if ok := rootCertPool.AppendCertsFromPEM(ca); !ok {
 			log.Fatal("Failed to append CA pem.")
 		}
-		
+	
 		mysql.RegisterTLSConfig("custom", &tls.Config{
 			RootCAs:      rootCertPool,
 		})
 		return
 	}
-}
-
-func init() {
-	registryTLSConfig()
 }

@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"log"
 
 	"helianthus/utils"
 )
@@ -40,12 +41,14 @@ func generateDSN() string {
 		Host:     utils.GetEnvWithDefault("DB_HOST", "localhost"),
 		Port:     utils.GetEnvWithDefault("DB_PORT", "3306"),
 		Database: utils.GetEnvWithDefault("DB_DATABASE", "helianthus"),
-		TLS: 			utils.GetEnvWithDefault("DB_TLS_NAME", "skip-verify"),
+		TLS: 			utils.GetEnvWithDefault("DB_TLS", "skip-verify"),
 	}
 	return dsn.String()
 }
 
 func init() {
+	log.Println("Initializing database connection...")
+	registryTLSConfig()
 	var err error
 	if utils.GetEnvWithDefault("DB_DRIVER", "mysql") == "mysql" {
 		Conn, err = gorm.Open(mysql.Open(generateDSN()), &gorm.Config{})
@@ -62,4 +65,5 @@ func init() {
 	}
 	cnp.SetMaxIdleConns(20)
 	cnp.SetMaxOpenConns(1000)
+	log.Println("Database connection initialized.")
 }
