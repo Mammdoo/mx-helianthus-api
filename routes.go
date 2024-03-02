@@ -12,6 +12,7 @@ import (
 	"helianthus/utils"
 	"helianthus/cmdb"
 	"helianthus/public"
+	"helianthus/account"
 	"github.com/gorilla/mux"
 )
 
@@ -36,13 +37,19 @@ func routeCMDB(r *mux.Router) {
 	r.Path("/application/{AppID}").HandlerFunc(utils.AuthMiddlerware(cmdb.UpdateApplicationByAppID)).Methods("PUT")
 }
 
+func routeAccount(r *mux.Router) {
+	r.Path("/").HandlerFunc(account.CheckModuleLoaded).Methods("GET")
+}
+
 func init() {
 	httpHandler = mux.NewRouter()
 	httpHandler.StrictSlash(true)
 
 	routeRegisterPublic := initRouteSub(httpHandler, "/api/public")
 	routeRegisterCMDB := initRouteSub(httpHandler, "/api/cmdb")
+	routeRegisterAccount := initRouteSub(httpHandler, "/api/account")
 
 	routePublic(routeRegisterPublic)
 	routeCMDB(routeRegisterCMDB)
+	routeAccount(routeRegisterAccount)
 }
